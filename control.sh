@@ -1,6 +1,6 @@
 #!/bin/sh
 CURRENT_DIR=$(cd $(dirname $0); pwd)
-echo $CURRENT_DIR
+#echo $CURRENT_DIR
 action=$1
 param=$2
 
@@ -30,9 +30,15 @@ function clean() {
 }
 
 
+function doc() {
+    nohup godoc -http=:8001 > ./log/godoc.log &
+    echo "http://localhost:8001/pkg/gDAG/"
+}
 
 if [ "$1" == "build" ]; then
     build
+elif [ "$1" == "doc" ]; then
+    doc
 elif [ "$1" == "clean" ]; then
     clean
 else

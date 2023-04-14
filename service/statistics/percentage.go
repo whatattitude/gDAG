@@ -1,9 +1,8 @@
 package statistics
 
 import (
-	"fmt"
 	"gDAG/lib/log/logger"
-	"gDAG/lib/statistics/datatype"
+	"gDAG/service/statistics/datatype"
 )
 
 var statisticsLogger = logger.InitLogger("./log/statistics/")
@@ -34,8 +33,8 @@ func LabelAnomalyAnalysis(showDataType string, analysisLabel Name, data LabelSel
 	}
 
 	//根据showDataType转换展示数据格式
-	datatype.GetLazySingletonInstance("count","percentages")
-	err = datatype.MapValueConvertor(showDataType, labelAnalysisMap) 
+	datatype.GetLazySingletonInstance(&datatype.OneDataEnum, "count","percentages")
+	err = datatype.MapValueConvertor(&datatype.OneDataEnum, showDataType, labelAnalysisMap) 
 	if err != nil{
 		return labelAnalysisMap,  err
 	}
@@ -43,7 +42,7 @@ func LabelAnomalyAnalysis(showDataType string, analysisLabel Name, data LabelSel
 }
 
 func labelAnalysisSliceLabelAdd(labelAnalysisMap map[Value]Count, labelValue Value) {
-	fmt.Println(labelValue)
+	
 	_, ok := labelAnalysisMap[labelValue]
 	if !ok {
 		labelAnalysisMap[labelValue] = 0

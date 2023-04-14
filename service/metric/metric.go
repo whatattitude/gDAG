@@ -17,6 +17,7 @@ func (m *Metric)Len()int{
 	return len(*m)
 }
 
+
 func (mList *Metric)GetAnalysisLabelValue(index int, name string) (value string, err error){
 	m, err :=  mList.SafetyGetterItem(index)
 	if err != nil{

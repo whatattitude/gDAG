@@ -7,29 +7,36 @@ import (
 	"github.com/younamebert/enum"
 )
 
-var (
+
+
+var OneDataEnum = OneDataTypeEnum{
+	Once: &sync.Once{},
+	DataTypeEnum: nil,
+}
+
+type OneDataTypeEnum struct{
 	DataTypeEnum *DataEnum
-	once         = &sync.Once{}
-)
+	Once         *sync.Once
+}
 
 type DataEnum struct{
 	Enum *enum.Enum
 }
 
-func GetLazySingletonInstance(args ...string) *DataEnum {
-	if DataTypeEnum == nil {
-		once.Do(func() {
+func GetLazySingletonInstance( OneDataEnum *OneDataTypeEnum, args ...string) *OneDataTypeEnum {
+	if OneDataEnum.DataTypeEnum == nil {
+		OneDataEnum.Once.Do(func() {
 			resp := enum.NewEnum(args... )
-			DataTypeEnum  = &DataEnum{
+			OneDataEnum.DataTypeEnum  = &DataEnum{
 				Enum:  &resp,
 			}
 		})
 	}
-	return DataTypeEnum
+	return OneDataEnum
 }
 
-func MapValueConvertor(dataType string, dataMap map[string]float64)(err error){
-	hasDataType := DataTypeEnum.Enum.IsEnum(dataType)
+func MapValueConvertor( OneDataEnum *OneDataTypeEnum, dataType string, dataMap map[string]float64)(err error){
+	hasDataType := OneDataEnum.DataTypeEnum.Enum.IsEnum(dataType)
 	if !hasDataType{
 		return errors.New(dataType + "is not in datatype.DataTypeEnum")
 	}

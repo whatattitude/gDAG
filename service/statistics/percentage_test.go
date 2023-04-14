@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"gDAG/lib/metric"
+	"gDAG/service/metric"
 )
 
 func TestLabelAnomalyAnalysis(t *testing.T) {
