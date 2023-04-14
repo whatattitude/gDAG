@@ -1,3 +1,4 @@
+// Data format conversion for map type
 package datatype
 
 import (

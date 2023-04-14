@@ -31,7 +31,38 @@ function clean() {
 
 
 function doc() {
-    nohup godoc -http=:8001 > ./log/godoc.log &
+    tmpfile="./log/.godoc"
+    PID=$(cat $tmpfile)
+    echo "godoc  pid is "$PID
+    if [ "$param" == "stop" ]; then
+        if [ ! $PID_EXIST ];then
+            echo the process $PID is not exist
+
+        else
+            echo the process $PID exist
+            echo "kill godoc"
+            kill -9 $PID
+            
+        fi
+        exit 1
+    else
+        echo "godoc controller start"
+    fi
+    
+    
+
+    PID_EXIST=$(ps aux | awk '{print $2}'| grep -w $PID)
+    if [ ! $PID_EXIST ];then
+        echo the process $PID is not exist
+        echo "start godoc"
+        nohup godoc -http=:8001 > ./log/godoc.log &
+        echo $! > $tmpfile
+    else
+        echo the process $PID exist
+        echo "restart godoc"
+        kill -9 $PID
+        doc
+    fi
     echo "http://localhost:8001/pkg/gDAG/"
 }
 

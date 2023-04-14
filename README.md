@@ -20,6 +20,10 @@ sh Function description
 2. Clean up all products in the bin
 > `#sh control.sh clean`
 
-3. Start the local doc file on port 8001
-> `#sh control.sh doc`
-> `http://localhost:8001/pkg/gDAG/`
+1. Start the local godoc  on port 8001
+-  godoc restarts with each execution 
+   -  `sh control.sh doc` 
+- stop godoc
+  - `sh control.sh doc stop` 
+- local godoc address
+  - `http://localhost:8001/pkg/gDAG/`

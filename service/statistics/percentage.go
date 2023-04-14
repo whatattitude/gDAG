@@ -1,3 +1,4 @@
+// Analysis library for composite structure data
 package statistics
 
 import (
@@ -5,7 +6,7 @@ import (
 	"gDAG/service/statistics/datatype"
 )
 
-var statisticsLogger = logger.InitLogger("./log/statistics/")
+var statisticsLogger = logger.Logger
 
 type Name = string
 type Value = string
@@ -18,6 +19,7 @@ type LabelSelector interface {
 }
 
 
+// 
 func LabelAnomalyAnalysis(showDataType string, analysisLabel Name, data LabelSelector) ( labelAnalysisMap map[Value]Count, err error) {
 	labelAnalysisMap = make(map[string]float64)
 	analysisCount := data.Len()
@@ -40,6 +42,7 @@ func LabelAnomalyAnalysis(showDataType string, analysisLabel Name, data LabelSel
 	}
 	return labelAnalysisMap,  err
 }
+
 
 func labelAnalysisSliceLabelAdd(labelAnalysisMap map[Value]Count, labelValue Value) {
 	

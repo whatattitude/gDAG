@@ -1,9 +1,12 @@
+// monitor metric
 package metric
 
 import (
 	"errors"
 	"strconv"
 )
+
+
 type MetricItem struct{
 	Idc string
 	Labels map[string]string
@@ -48,6 +51,7 @@ func (mList *Metric)ValueStatusChecker(index int, thresholdMax float64, threshol
 	}
 	return false, err
 }
+
 
 func (mList *Metric)SafetyGetterItem(index int)(m MetricItem, err error){
 	if mList != nil && len(*mList) > index{

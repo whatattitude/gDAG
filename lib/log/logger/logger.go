@@ -1,17 +1,30 @@
+// Convenient log library out of the box
 package logger
 
 import (
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	"gDAG/lib/env"
 	"gDAG/lib/file"
 )
 
-// var PlayerLogger *zap.Logger
-// var GetterLogger *zap.Logger
+var Logger = defaultInitLogger()
+
+func defaultInitLogger()*zap.Logger{
+	var path = "./log/statistics/"
+	goEnv, err := env.GetEnvDefault()
+	if err  != nil{
+		fmt.Println("get go env error. using default logger path")
+	}
+	path = strings.Replace(goEnv.Gomod, "go.mod", "log/statistics/", 1)
+	return InitLogger(path)
+}
 
 func InitLogger(logFilePath string) *zap.Logger {
 

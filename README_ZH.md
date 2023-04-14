@@ -21,6 +21,10 @@ gDAG是一个用于调度和监控工作流的平台。gDAG是一个任务调度
 2.清理bin下所有产物
 > `#sh control.sh clean`
 
-3.在8001端口启动本地doc文档
-> `#sh control.sh doc`
-> `http://localhost:8001/pkg/gDAG/`
+3.在8001端口启动本地godoc文档
+- 每次执行都会重启godoc
+  - `#sh control.sh doc `  
+- 执行停止godoc
+  - `#sh control.sh doc stop `  
+- 本地godoc地址
+  - `http://localhost:8001/pkg/gDAG/`
