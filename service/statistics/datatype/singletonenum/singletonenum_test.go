@@ -1,4 +1,4 @@
-package datatype
+package singletonenum
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ func TestGetLazySingletonInstance(t *testing.T) {
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
-		if got := GetLazySingletonInstance(&OneDataEnum); !reflect.DeepEqual(got, tt.want) {
+		if got := OneDataEnum.GetLazySingletonInstance(); !reflect.DeepEqual(got, tt.want) {
 			t.Errorf("%q. GetLazySingletonInstance() = %v, want %v", tt.name, got, tt.want)
 		}
 		fmt.Println(OneDataEnum.DataTypeEnum)

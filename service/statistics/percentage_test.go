@@ -1,52 +1,59 @@
 package statistics
 
 import (
-	"reflect"
-	"testing"
-
+	"encoding/json"
 	"gDAG/service/metric"
+	"gDAG/service/statistics/datatype"
+	"testing"
 )
 
 func TestLabelAnomalyAnalysis(t *testing.T) {
 	type args struct {
 		showDataType  string
 		analysisLabel Name
-		data          metric.Metric
+		data          LabelSelector
+		labelAnalysis datatype.DataCount
 	}
 	tests := []struct {
-		name                 string
-		args                 args
-		wantLabelAnalysisMap map[Value]Count
-		wantErr              bool
+		name    string
+		args    args
+		wantErr bool
 	}{
 		{
-			name:"test",
+			name: "test",
 			args: args{
-				showDataType: "percentages",
-				analysisLabel: "idc",
-				data: metric.Metric{
-					{Idc: "a", Value: 1},
-					{Idc: "b", Value: 2},
-					{Idc: "c", Value: 3},
-					{Idc: "b", Value: 2},
-					{Idc: "c", Value: 3},
+				showDataType:  "percentages",
+				analysisLabel: "Idc",
+				data: &metric.Metric{
+					{Idc: "a", Value: 1,ThresholdMax: 1,ThresholdMin: 0,TimeStamp: "1"},
+					{Idc: "b", Value: 0.33,ThresholdMax: 1,ThresholdMin: 0,TimeStamp: "1"},
+					{Idc: "c", Value: 3,ThresholdMax: 1,ThresholdMin: 0,TimeStamp: "1"},
+					{Idc: "b", Value: 2,ThresholdMax: 1,ThresholdMin: 0,TimeStamp: "1"},
+					{Idc: "c", Value: 3,ThresholdMax: 1,ThresholdMin: 0,TimeStamp: "1"},
 				},
+				labelAnalysis: datatype.DataCount{},
+				
 			},
-			wantLabelAnalysisMap: make(map[string]float64),
-			wantErr: false,
 
+			wantErr : false,
 		},
 		// TODO: Add test cases.
 	}
+
 	for _, tt := range tests {
-		
-		gotLabelAnalysisMap, err := LabelAnomalyAnalysis(tt.args.showDataType, tt.args.analysisLabel, &tt.args.data)
-		if (err != nil) != tt.wantErr {
-			t.Errorf("%q. LabelAnomalyAnalysis() error = %v, wantErr %v", tt.name, err, tt.wantErr)
-			continue
-		}
-		if !reflect.DeepEqual(gotLabelAnalysisMap, tt.wantLabelAnalysisMap) {
-			t.Errorf("%q. LabelAnomalyAnalysis() = %v, want %v", tt.name, gotLabelAnalysisMap, tt.wantLabelAnalysisMap)
-		}
+		t.Run(tt.name, func(t *testing.T) {
+			if err := LabelAnomalyAnalysis(tt.args.showDataType, tt.args.analysisLabel, tt.args.data, &tt.args.labelAnalysis); (err != nil) != tt.wantErr {
+				t.Errorf("LabelAnomalyAnalysis() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			dataType , _ := json.Marshal(tt.args.labelAnalysis.ValueMap)
+			dataString := string(dataType)
+			t.Logf("labelAnalysis is: %s", dataString )
+			if err := LabelAnomalyAnalysis(tt.args.showDataType, "TimeStamp", tt.args.data, &tt.args.labelAnalysis); (err != nil) != tt.wantErr {
+				t.Errorf("LabelAnomalyAnalysis() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			dataType , _ = json.Marshal(tt.args.labelAnalysis)
+			dataString = string(dataType)
+			t.Logf("labelAnalysis is: %s", dataString )
+		})
 	}
 }

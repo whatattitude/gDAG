@@ -14,10 +14,13 @@ import (
 	"gDAG/lib/file"
 )
 
-var Logger = defaultInitLogger()
+var Logger = DefaultInitLogger("")
 
-func defaultInitLogger()*zap.Logger{
-	var path = "./log/statistics/"
+func DefaultInitLogger(path string)*zap.Logger{
+	if path == ""{
+		path = "./log/statistics/"
+	}
+	
 	goEnv, err := env.GetEnvDefault()
 	if err  != nil{
 		fmt.Println("get go env error. using default logger path")
@@ -63,18 +66,3 @@ func getLumberjackConfig(fileName string) zapcore.WriteSyncer {
 	return zapcore.AddSync(lumberjackLogger)
 }
 
-// func simpleHttpGet(url string) {
-// 	// 记录日志
-// 	PlayerLogger.Info("输出日志到文件", zap.String("url", url))
-// 	GetterLogger.Debug("debug", zap.String("12", "123"))
-// }
-
-// func main() {
-// 	getterPath := "/home/users/shengqing01/baidu/psop/product_monitor/log/getter/"
-// 	playerPath := "/home/users/shengqing01/baidu/psop/product_monitor/log/player/"
-// 	GetterLogger = InitLogger(getterPath)
-// 	PlayerLogger = InitLogger(playerPath)
-// 	//defer sugarLogger.Sync()
-// 	simpleHttpGet("www.baidu.com")
-// 	simpleHttpGet("www.baidu.com1231")
-// }
