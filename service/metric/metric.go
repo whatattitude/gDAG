@@ -85,6 +85,9 @@ func (mSlice *Metric) SafetyGetterItem(index int) (m MetricItem, err error) {
 }
 
 func (mSlice *Metric)DeepCopy()( m2 *Metric){
+	if mSlice == nil{
+		return nil
+	}
 	*m2 = make([]MetricItem, mSlice.Len())
 	for i, v := range *mSlice {
 		(*m2)[i] = *(v.DeepCopy())
@@ -94,7 +97,10 @@ func (mSlice *Metric)DeepCopy()( m2 *Metric){
 }
 
 func (mItem *MetricItem)DeepCopy()( m2 *MetricItem){
-	m2 = mItem
+	if mItem == nil{
+		return nil
+	}
+	*m2 = *mItem
 	m2.Labels = make(map[string]string, len(mItem.Labels))
 	for key, value := range mItem.Labels {
     	m2.Labels[key] = value
