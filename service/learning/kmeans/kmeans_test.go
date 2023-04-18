@@ -43,6 +43,29 @@ func TestKmeansPlusPlus_OneDimensionalKmeansPlusPlus(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "test",
+			fields: fields{
+				MaxIterations: 10,
+				CenterCount:   2,
+			},
+			args: args{
+				originalData: &OneDimensionalDataInfo{
+					{PointIndex: 1, Value: 1},
+					{PointIndex: 2, Value: 0.1},
+					{PointIndex: 3, Value: 1},
+					{PointIndex: 4, Value: 1},
+					{PointIndex: 5, Value: 1},
+					{PointIndex: 6, Value: 1},
+					{PointIndex: 7, Value: 1},
+					{PointIndex: 8, Value: 100},
+					{PointIndex: 9, Value: 90},
+					{PointIndex: 10, Value: 80},
+				},
+				centerCount: 2,
+			},
+			wantErr: false,
+		},
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {

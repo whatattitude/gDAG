@@ -27,28 +27,32 @@ func (o *OneDimensionalDataInfo) GetDataList() (dataList []DataInfo) {
 	for i := range *o {
 		(*o)[i].CenterIndex = (*o)[i].PointIndex
 		(*o)[i].Distance = 0
+		(*o)[i].CenterIndex = -1
 	}
 	return *o
 }
 
 func (o *OneDimensionalDataInfo) RandomCenter(centerCount int) (centerIndex []DataInfo) {
 	if centerCount == 2 {
-		sort.Sort(o)
+		sort.Sort(*o)
 		centerIndex = append(centerIndex, (*o)[0])
 		centerIndex = append(centerIndex, (*o)[o.Len()-1])
 	} else {
 		for i := 0; i < centerCount; i++ {
-			rand.Seed(time.Now().UnixNano())
+			rand.NewSource(time.Now().UnixNano())
 			centerIndex = append(centerIndex, (*o)[rand.Intn((*o).Len()-1)])
 			centerIndex = append(centerIndex, (*o)[rand.Intn((*o).Len()-1)])
 		}
 
 	}
+	for i := range centerIndex {
+		centerIndex[i].CenterIndex = centerIndex[i].PointIndex
+	}
 	return
 }
 
 func (o *OneDimensionalDataInfo) GetDistance(x1, x2 DataInfo) (distance float64) {
-	return math.Abs(x1.Distance - x2.Distance)
+	return math.Abs(x1.Value - x2.Value)
 }
 
 func (n OneDimensionalDataInfo) Len() int {
@@ -56,7 +60,7 @@ func (n OneDimensionalDataInfo) Len() int {
 }
 
 func (n OneDimensionalDataInfo) Less(i, j int) bool {
-	return (n)[i].Value < (n)[j].Value
+	return (n)[i].Distance < (n)[j].Distance
 }
 
 func (n OneDimensionalDataInfo) Swap(i, j int) {

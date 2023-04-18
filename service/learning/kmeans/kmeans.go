@@ -3,9 +3,11 @@ package kmeans
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"gDAG/lib/log/logger"
+
+	"math/rand"
 	"sort"
+	"time"
 )
 
 type DataInfo struct {
@@ -46,30 +48,36 @@ func (kmeans *KmeansPlusPlus) OneDimensionalKmeansPlusPlus(originalData OneDimen
 	centerCount int) (err error) {
 
 	kmeans.CenterCount = centerCount
-	logger.Logger.Sugar().Debugf(" %+v", originalData)
-	centerIndexSlice := originalData.RandomCenter(centerCount)
-	logger.Logger.Sugar().Debugf(" %+v", centerIndexSlice)
+	logger.Logger.Sugar().Debugf("start OneDimensionalKmeansPlusPlus %+v", originalData)
+	centerSlice := originalData.RandomCenter(centerCount)
+	logger.Logger.Sugar().Debugf(" %+v", centerSlice)
 
 	for kmeans.Runs < kmeans.MaxIterations {
 
-		currCenterClusters, err := kmeans.CenterIteration(centerIndexSlice, originalData)
+		currCenterClusters, err := kmeans.CenterIteration(centerSlice, originalData)
 		if err != nil {
 			return err
 		}
 
 		output, _ := json.Marshal(currCenterClusters)
-		logger.Logger.Sugar().Debug((json.RawMessage(output)))
-		fmt.Println(string(output))
+		logger.Logger.Sugar().Debug((string(output)))
 
 		kmeans.ConvergenceCheck(currCenterClusters)
 		kmeans.CenterClusters = currCenterClusters
+
 		// kmeans.CenterClusters = make([]Cluster, len(currCenterClusters))
 		// kmeans.CenterClusters = append(kmeans.CenterClusters, currCenterClusters...)
+		output1, _ := json.Marshal(kmeans.CenterClusters)
+		output2, _ := json.Marshal(currCenterClusters)
+		logger.Logger.Sugar().Debugf(" %+v  ---  %+v ", string(output1), string(output2))
 		logger.Logger.Sugar().Debugf(" %+v", kmeans)
 		if kmeans.IsConvergence {
 			logger.Logger.Info("kmeans.IsConvergence is true")
 			break
 		}
+
+		kmeans.ClusterRandomCenter(centerSlice)
+
 	}
 
 	if !kmeans.IsConvergence {
@@ -79,40 +87,45 @@ func (kmeans *KmeansPlusPlus) OneDimensionalKmeansPlusPlus(originalData OneDimen
 
 }
 
+func (kmeans *KmeansPlusPlus) ClusterRandomCenter(centerSlice []DataInfo) {
+	rand.NewSource(time.Now().UnixNano())
+	// centerIndex = append(centerIndex, (*o)[rand.Intn((*o).Len()-1)])
+	for i := 0; i < len(kmeans.CenterClusters); i++ {
+		centerPoint := kmeans.CenterClusters[i].DataSlice[rand.Intn(len(kmeans.CenterClusters[i].DataSlice))]
+		centerSlice[i].CenterIndex = centerPoint.PointIndex
+		centerSlice[i].PointIndex = centerPoint.PointIndex
+		centerSlice[i].Value = centerPoint.Value
+		centerSlice[i].Distance = -1
+	}
+}
+
 func (kmeans *KmeansPlusPlus) ConvergenceCheck(currCenterClusters []Cluster) {
-	if currCenterClusters == nil && kmeans.CenterClusters == nil {
+	if currCenterClusters == nil || kmeans.CenterClusters == nil || len(kmeans.CenterClusters) == 0 {
 		return
 	}
 
-	for _, curr := range currCenterClusters {
-		var inOriginal = false
-		for _, original := range kmeans.CenterClusters {
-			if curr.CenterIndex == original.CenterIndex {
-				inOriginal = true
+	for index, curr := range currCenterClusters {
 
-				for _, currDataSlice := range curr.DataSlice {
-					var inOriginalDataSlice = false
-					for _, originalDataSlice := range original.DataSlice {
-						if currDataSlice.PointIndex == originalDataSlice.PointIndex {
-							inOriginalDataSlice = true
-							break
-						}
-					}
-					if !inOriginalDataSlice {
-						kmeans.IsConvergence = false
-						return
-					}
+		original := kmeans.CenterClusters[index]
+
+		for _, currDataSlice := range curr.DataSlice {
+			var inOriginalDataSlice = false
+			for _, originalDataSlice := range original.DataSlice {
+				if currDataSlice.PointIndex == originalDataSlice.PointIndex {
+					inOriginalDataSlice = true
+					break
 				}
-				break
+			}
+			if !inOriginalDataSlice {
+				kmeans.IsConvergence = false
+				return
 			}
 		}
-		if !inOriginal {
-			kmeans.IsConvergence = false
-			return
-		}
+
 	}
+
 	kmeans.IsConvergence = true
-	return
+
 }
 
 func (kmeans *KmeansPlusPlus) CenterIteration(centerIndexSlice []DataInfo,
@@ -121,32 +134,34 @@ func (kmeans *KmeansPlusPlus) CenterIteration(centerIndexSlice []DataInfo,
 	if len(dataList) == 0 {
 		return nil, errors.New("originalData.GetDataList get no data, nothing need to do ")
 	}
-	currCenterClusters = make([]Cluster, len(centerIndexSlice))
+	currCenterClusters = make([]Cluster, 0)
 
+	logger.Logger.Sugar().Debugf("%+v", dataList)
+	for i := range centerIndexSlice {
+		currCenterClustersItem := Cluster{
+			CenterIndex: centerIndexSlice[i].CenterIndex,
+		}
+		currCenterClusters = append(currCenterClusters, currCenterClustersItem)
+	}
+	logger.Logger.Sugar().Debugf("%+v", currCenterClusters)
 	for _, v := range dataList {
 		DataSlice := make([]DataInfo, 0)
 		for _, x1 := range centerIndexSlice {
 			distance := originalData.GetDistance(x1, v)
 			item := v.DeepCopy()
 			item.Distance = distance
-			item.CenterIndex = x1.CenterIndex
+			item.CenterIndex = x1.PointIndex
 			DataSlice = append(DataSlice, *item)
 		}
 
-		DataSliceOneDimensional := OneDimensionalDataInfo(DataSlice)
-		sort.Sort(DataSliceOneDimensional)
-
-		var inCurr = false
+		//DataSliceOneDimensional := OneDimensionalDataInfo()
+		sort.Sort(OneDimensionalDataInfo(DataSlice))
+		logger.Logger.Sugar().Debugf("%+v", DataSlice)
 		for i := range currCenterClusters {
 			if currCenterClusters[i].CenterIndex == DataSlice[0].CenterIndex {
 				currCenterClusters[i].DataSlice = append(currCenterClusters[i].DataSlice, DataSlice[0])
-				inCurr = true
 			}
 		}
-		if !inCurr {
-			currCenterClusters = append(currCenterClusters)
-		}
-
 	}
 	kmeans.Runs++
 	return
@@ -164,10 +179,8 @@ func (c *Cluster) DeepCopy() (c2 *Cluster) {
 			c2.Labels[k] = v
 		}
 	}
-	if len(c.DataSlice) < 0 {
-		return
-	}
-	c2.DataSlice = make([]DataInfo, len(c.DataSlice))
+
+	c2.DataSlice = make([]DataInfo, 0)
 	for _, v := range c.DataSlice {
 		c2.DataSlice = append(c2.DataSlice, *v.DeepCopy())
 	}
