@@ -22,7 +22,7 @@ type DataInfo struct {
 
 type OneDimensionalData interface {
 	GetDataList() (dataList []DataInfo)
-	RandomCenter(centerCount int) (CenterIndex []DataInfo)
+	RandomCenter(centerCount int) (CenterIndex []DataInfo, err error)
 	GetDistance(x1, x2 DataInfo) (distance float64)
 }
 
@@ -51,7 +51,13 @@ func (kmeans *KmeansPlusPlus) OneDimensionalKmeansPlusPlus(originalData OneDimen
 
 	kmeans.CenterCount = centerCount
 	logger.Logger.Sugar().Debugf("start OneDimensionalKmeansPlusPlus %+v", originalData)
-	centerSlice := originalData.RandomCenter(centerCount)
+	if len(originalData.GetDataList()) == 0 {
+		return errors.New("kmeans has no data , nothing to do")
+	}
+	centerSlice, err := originalData.RandomCenter(centerCount)
+	if err != nil {
+		return err
+	}
 	logger.Logger.Sugar().Debugf(" %+v", centerSlice)
 
 	for kmeans.Runs < kmeans.MaxIterations {

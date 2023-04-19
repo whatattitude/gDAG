@@ -1,6 +1,7 @@
 package kmeans
 
 import (
+	"errors"
 	"math"
 	"math/rand"
 	"sort"
@@ -32,7 +33,10 @@ func (o *OneDimensionalDataInfo) GetDataList() (dataList []DataInfo) {
 	return *o
 }
 
-func (o *OneDimensionalDataInfo) RandomCenter(centerCount int) (centerIndex []DataInfo) {
+func (o *OneDimensionalDataInfo) RandomCenter(centerCount int) (centerIndex []DataInfo, err error) {
+	if o.Len() == 0 {
+		return nil, errors.New("OneDimensionalDataInfo has no data , can not generate center point")
+	}
 	if centerCount == 2 {
 		sort.Sort(*o)
 		centerIndex = append(centerIndex, (*o)[0])
