@@ -3,6 +3,7 @@ package kmeans
 import (
 	"encoding/json"
 	"errors"
+	"strconv"
 
 	"github.com/whatattitude/gDAG/lib/log/logger"
 
@@ -77,7 +78,13 @@ func (kmeans *KmeansPlusPlus) OneDimensionalKmeansPlusPlus(originalData OneDimen
 			break
 		}
 
-		kmeans.ClusterRandomCenter(centerSlice)
+		err = kmeans.ClusterRandomCenter(centerSlice)
+		if err != nil {
+			logger.Logger.Sugar().Debugf(" %+v", kmeans)
+			logger.Logger.Sugar().Debugf(err.Error())
+			kmeans.IsConvergence = true
+			return err
+		}
 
 	}
 
@@ -88,16 +95,20 @@ func (kmeans *KmeansPlusPlus) OneDimensionalKmeansPlusPlus(originalData OneDimen
 
 }
 
-func (kmeans *KmeansPlusPlus) ClusterRandomCenter(centerSlice []DataInfo) {
+func (kmeans *KmeansPlusPlus) ClusterRandomCenter(centerSlice []DataInfo) (err error) {
 	rand.NewSource(time.Now().UnixNano())
 	// centerIndex = append(centerIndex, (*o)[rand.Intn((*o).Len()-1)])
 	for i := 0; i < len(kmeans.CenterClusters); i++ {
+		if len(kmeans.CenterClusters[i].DataSlice) == 0 {
+			return errors.New("one CenterClusters has no data  " + strconv.Itoa(kmeans.CenterClusters[i].CenterIndex))
+		}
 		centerPoint := kmeans.CenterClusters[i].DataSlice[rand.Intn(len(kmeans.CenterClusters[i].DataSlice))]
 		centerSlice[i].CenterIndex = centerPoint.PointIndex
 		centerSlice[i].PointIndex = centerPoint.PointIndex
 		centerSlice[i].Value = centerPoint.Value
 		centerSlice[i].Distance = -1
 	}
+	return
 }
 
 func (kmeans *KmeansPlusPlus) ConvergenceCheck(currCenterClusters []Cluster) {
