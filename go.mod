@@ -1,4 +1,4 @@
-module gDAG
+module github.com/whatattitude/gDAG
 
 go 1.20
 

@@ -10,19 +10,19 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"gDAG/lib/env"
-	"gDAG/lib/file"
+	"github.com/whatattitude/gDAG/lib/env"
+	"github.com/whatattitude/gDAG/lib/file"
 )
 
 var Logger = DefaultInitLogger("")
 
-func DefaultInitLogger(path string)*zap.Logger{
-	if path == ""{
+func DefaultInitLogger(path string) *zap.Logger {
+	if path == "" {
 		path = "./log/statistics/"
 	}
-	
+
 	goEnv, err := env.GetEnvDefault()
-	if err  != nil{
+	if err != nil {
 		fmt.Println("get go env error. using default logger path")
 	}
 	path = strings.Replace(goEnv.Gomod, "go.mod", "log/statistics/", 1)
@@ -31,7 +31,6 @@ func DefaultInitLogger(path string)*zap.Logger{
 
 func InitLogger(logFilePath string) *zap.Logger {
 
-	
 	file.CreateDir(logFilePath)
 	// 设置日志输出格式为JSON (参数复用NewDevelopmentEncoderConfig)
 	encoder := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
@@ -65,4 +64,3 @@ func getLumberjackConfig(fileName string) zapcore.WriteSyncer {
 	}
 	return zapcore.AddSync(lumberjackLogger)
 }
-

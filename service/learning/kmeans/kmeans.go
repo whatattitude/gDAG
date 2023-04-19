@@ -3,7 +3,8 @@ package kmeans
 import (
 	"encoding/json"
 	"errors"
-	"gDAG/lib/log/logger"
+
+	"github.com/whatattitude/gDAG/lib/log/logger"
 
 	"math/rand"
 	"sort"

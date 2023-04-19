@@ -2,7 +2,7 @@
 package statistics
 
 import (
-	"gDAG/lib/log/logger"
+	"github.com/whatattitude/gDAG/lib/log/logger"
 )
 
 var statisticsLogger = logger.Logger
@@ -18,19 +18,17 @@ type LabelSelector interface {
 	GetDataInfo(index int) (datainfo map[string]string, err error)
 }
 
-type DataInfo interface{
-	GetDataInfo()map[string]string
+type DataInfo interface {
+	GetDataInfo() map[string]string
 }
 
-
-type ValueStatusCount interface{
+type ValueStatusCount interface {
 	SetLabelName(labelName string)
 	AddStatusCount(labelValue string, statusType string, dataInfo map[string]string)
 	DataTypeConvert(showDataType string) (err error)
 }
 
-
-func LabelAnomalyAnalysis(showDataType string, analysisLabel Name, data LabelSelector, labelAnalysis ValueStatusCount) ( err error) {
+func LabelAnomalyAnalysis(showDataType string, analysisLabel Name, data LabelSelector, labelAnalysis ValueStatusCount) (err error) {
 	labelAnalysis.SetLabelName(analysisLabel)
 	analysisCount := data.Len()
 
@@ -38,28 +36,27 @@ func LabelAnomalyAnalysis(showDataType string, analysisLabel Name, data LabelSel
 	for i := 0; i < analysisCount; i++ {
 		value, err := data.GetAnalysisLabelValue(i, analysisLabel)
 		if err != nil {
-			return  err
+			return err
 		}
-		status, err := data.ValueStatusChecker(i )
+		status, err := data.ValueStatusChecker(i)
 		if err != nil {
-			return  err
+			return err
 		}
 		dataInfo, err := data.GetDataInfo(i)
 		if err != nil {
-			return  err
+			return err
 		}
-		statisticsLogger.Sugar().Debugf( "dataStatus=%s, data=%v ", status,  dataInfo)
+		statisticsLogger.Sugar().Debugf("dataStatus=%s, data=%v ", status, dataInfo)
 		labelAnalysisSliceLabelAdd(labelAnalysis, value, status, dataInfo)
 	}
 
 	labelAnalysis.DataTypeConvert(showDataType)
 
-	return  err
+	return err
 }
 
-func labelAnalysisSliceLabelAdd(labelAnalysis ValueStatusCount, labelValue Value, 
+func labelAnalysisSliceLabelAdd(labelAnalysis ValueStatusCount, labelValue Value,
 	status string, dataInfo map[string]string) {
 	labelAnalysis.AddStatusCount(labelValue, status, dataInfo)
-	
-}
 
+}
