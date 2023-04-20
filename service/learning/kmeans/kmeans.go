@@ -21,8 +21,8 @@ type DataInfo struct {
 }
 
 type OneDimensionalData interface {
-	GetDataList() (dataList []DataInfo)
-	RandomCenter(centerCount int) (CenterIndex []DataInfo, err error)
+	GetDataList() (dataList OneDimensionalDataInfo)
+	RandomCenter(centerCount int) (CenterIndex OneDimensionalDataInfo, err error)
 	GetDistance(x1, x2 DataInfo) (distance float64)
 }
 
@@ -51,7 +51,7 @@ func (kmeans *KmeansPlusPlus) OneDimensionalKmeansPlusPlus(originalData OneDimen
 
 	kmeans.CenterCount = centerCount
 	logger.Logger.Sugar().Debugf("start OneDimensionalKmeansPlusPlus %+v", originalData)
-	if len(originalData.GetDataList()) == 0 {
+	if len(originalData.GetDataList().DataSlice) == 0 {
 		return errors.New("kmeans has no data , nothing to do")
 	}
 	centerSlice, err := originalData.RandomCenter(centerCount)
@@ -101,7 +101,7 @@ func (kmeans *KmeansPlusPlus) OneDimensionalKmeansPlusPlus(originalData OneDimen
 
 }
 
-func (kmeans *KmeansPlusPlus) ClusterRandomCenter(centerSlice []DataInfo) (err error) {
+func (kmeans *KmeansPlusPlus) ClusterRandomCenter(centerSlice OneDimensionalDataInfo) (err error) {
 	rand.NewSource(time.Now().UnixNano())
 	// centerIndex = append(centerIndex, (*o)[rand.Intn((*o).Len()-1)])
 	for i := 0; i < len(kmeans.CenterClusters); i++ {
@@ -109,10 +109,10 @@ func (kmeans *KmeansPlusPlus) ClusterRandomCenter(centerSlice []DataInfo) (err e
 			return errors.New("one CenterClusters has no data  " + strconv.Itoa(kmeans.CenterClusters[i].CenterIndex))
 		}
 		centerPoint := kmeans.CenterClusters[i].DataSlice[rand.Intn(len(kmeans.CenterClusters[i].DataSlice))]
-		centerSlice[i].CenterIndex = centerPoint.PointIndex
-		centerSlice[i].PointIndex = centerPoint.PointIndex
-		centerSlice[i].Value = centerPoint.Value
-		centerSlice[i].Distance = -1
+		centerSlice.DataSlice[i].CenterIndex = centerPoint.PointIndex
+		centerSlice.DataSlice[i].PointIndex = centerPoint.PointIndex
+		centerSlice.DataSlice[i].Value = centerPoint.Value
+		centerSlice.DataSlice[i].Distance = -1
 	}
 	return
 }
@@ -146,38 +146,37 @@ func (kmeans *KmeansPlusPlus) ConvergenceCheck(currCenterClusters []Cluster) {
 
 }
 
-func (kmeans *KmeansPlusPlus) CenterIteration(centerIndexSlice []DataInfo,
+func (kmeans *KmeansPlusPlus) CenterIteration(centerIndexSlice OneDimensionalDataInfo,
 	originalData OneDimensionalData) (currCenterClusters []Cluster, err error) {
 	dataList := originalData.GetDataList()
-	if len(dataList) == 0 {
+	if len(dataList.DataSlice) == 0 {
 		return nil, errors.New("originalData.GetDataList get no data, nothing need to do ")
 	}
 	currCenterClusters = make([]Cluster, 0)
 
 	logger.Logger.Sugar().Debugf("%+v", dataList)
-	for i := range centerIndexSlice {
+	for i := range centerIndexSlice.DataSlice {
 		currCenterClustersItem := Cluster{
-			CenterIndex: centerIndexSlice[i].CenterIndex,
+			CenterIndex: centerIndexSlice.DataSlice[i].CenterIndex,
 		}
 		currCenterClusters = append(currCenterClusters, currCenterClustersItem)
 	}
 	logger.Logger.Sugar().Debugf("%+v", currCenterClusters)
-	for _, v := range dataList {
-		DataSlice := make([]DataInfo, 0)
-		for _, x1 := range centerIndexSlice {
+	for _, v := range dataList.DataSlice {
+		DataSlice := OneDimensionalDataInfo{DataSlice: make([]DataInfo, 0), SortType: "distance"}
+		for _, x1 := range centerIndexSlice.DataSlice {
 			distance := originalData.GetDistance(x1, v)
 			item := v.DeepCopy()
 			item.Distance = distance
 			item.CenterIndex = x1.PointIndex
-			DataSlice = append(DataSlice, *item)
+			DataSlice.DataSlice = append(DataSlice.DataSlice, *item)
 		}
 
-		//DataSliceOneDimensional := OneDimensionalDataInfo()
-		sort.Sort(OneDimensionalDataInfo(DataSlice))
+		sort.Sort(DataSlice)
 		logger.Logger.Sugar().Debugf("%+v", DataSlice)
 		for i := range currCenterClusters {
-			if currCenterClusters[i].CenterIndex == DataSlice[0].CenterIndex {
-				currCenterClusters[i].DataSlice = append(currCenterClusters[i].DataSlice, DataSlice[0])
+			if currCenterClusters[i].CenterIndex == DataSlice.DataSlice[0].CenterIndex {
+				currCenterClusters[i].DataSlice = append(currCenterClusters[i].DataSlice, DataSlice.DataSlice[0])
 			}
 		}
 	}
