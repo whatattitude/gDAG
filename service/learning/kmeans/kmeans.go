@@ -230,3 +230,35 @@ func (d *DataInfo) DeepCopy() (d2 *DataInfo) {
 // 	}
 // 	return
 // }
+
+func (c Cluster) RemovalduplicateByLabel(labelkey string) (c2 Cluster) {
+	c2.CenterIndex = c.CenterIndex
+	c2.Labels = c.Labels
+	c2.DataSlice = make([]DataInfo, 0)
+	if len(c.DataSlice) == 0 {
+		return c2
+	}
+	for i := range c.DataSlice {
+		value, ok := c.DataSlice[i].Labels[labelkey]
+		if !ok {
+			logger.Logger.Debug("labelkey " + labelkey + " is not exsist")
+			return c2
+		}
+		inC2 := false
+		for j := range c2.DataSlice {
+			value2, ok := c2.DataSlice[j].Labels[labelkey]
+			if !ok {
+				logger.Logger.Debug("labelkey " + labelkey + " is not exsist")
+				return c2
+			}
+			if value2 == value {
+				inC2 = true
+			}
+
+		}
+		if !inC2 {
+			c2.DataSlice = append(c2.DataSlice, *c.DataSlice[i].DeepCopy())
+		}
+	}
+	return c2
+}

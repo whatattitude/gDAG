@@ -1,6 +1,9 @@
 package kmeans
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestKmeansPlusPlus_OneDimensionalKmeansPlusPlus(t *testing.T) {
 	type fields struct {
@@ -29,16 +32,36 @@ func TestKmeansPlusPlus_OneDimensionalKmeansPlusPlus(t *testing.T) {
 			args: args{
 				originalData: &OneDimensionalDataInfo{
 					DataSlice: []DataInfo{
-						{PointIndex: 1, Value: 1},
-						{PointIndex: 2, Value: 0.1},
-						{PointIndex: 3, Value: 1},
-						{PointIndex: 4, Value: 90},
-						{PointIndex: 5, Value: 0},
-						{PointIndex: 6, Value: 80},
-						{PointIndex: 7, Value: 1},
-						{PointIndex: 8, Value: 1},
-						{PointIndex: 9, Value: 1},
-						{PointIndex: 10, Value: 100},
+						{PointIndex: 1, Value: 1, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 2, Value: 0.1, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 3, Value: 1, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 4, Value: 90, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 5, Value: 0, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 6, Value: 80, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 7, Value: 1, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 8, Value: 1, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 9, Value: 1, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 10, Value: 100, Labels: map[string]string{
+							"name": "1",
+						}},
 					},
 					SortType: "value",
 				},
@@ -55,16 +78,36 @@ func TestKmeansPlusPlus_OneDimensionalKmeansPlusPlus(t *testing.T) {
 			args: args{
 				originalData: &OneDimensionalDataInfo{
 					DataSlice: []DataInfo{
-						{PointIndex: 1, Value: 1},
-						{PointIndex: 2, Value: 1},
-						{PointIndex: 3, Value: 1},
-						{PointIndex: 4, Value: 90},
-						{PointIndex: 5, Value: 10},
-						{PointIndex: 6, Value: 80},
-						{PointIndex: 7, Value: 1},
-						{PointIndex: 8, Value: 1},
-						{PointIndex: 9, Value: 1},
-						{PointIndex: 10, Value: 1},
+						{PointIndex: 1, Value: 1, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 2, Value: 0.1, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 3, Value: 1, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 4, Value: 90, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 5, Value: 0, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 6, Value: 80, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 7, Value: 1, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 8, Value: 1, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 9, Value: 1, Labels: map[string]string{
+							"name": "1",
+						}},
+						{PointIndex: 10, Value: 100, Labels: map[string]string{
+							"name": "1",
+						}},
 					},
 					SortType: "value",
 				},
@@ -85,7 +128,12 @@ func TestKmeansPlusPlus_OneDimensionalKmeansPlusPlus(t *testing.T) {
 			}
 			if err := kmeans.OneDimensionalKmeansPlusPlus(tt.args.originalData, tt.args.centerCount); (err != nil) != tt.wantErr {
 				t.Errorf("KmeansPlusPlus.OneDimensionalKmeansPlusPlus() error = %v, wantErr %v", err, tt.wantErr)
+
 			}
+			for i := range kmeans.CenterClusters {
+				kmeans.CenterClusters[i] = kmeans.CenterClusters[i].RemovalduplicateByLabel("name")
+			}
+			fmt.Println("=-=-=", kmeans.CenterClusters)
 		})
 	}
 }
