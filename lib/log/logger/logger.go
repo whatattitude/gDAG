@@ -25,7 +25,7 @@ func DefaultInitLogger(path string) *zap.Logger {
 	if err != nil {
 		fmt.Println("get go env error. using default logger path")
 	}
-	path = strings.Replace(goEnv.Gomod, "go.mod", "log/statistics/", 1)
+	path = strings.Replace(goEnv.Gomod, "go.mod", path, 1)
 	return InitLogger(path)
 }
 
